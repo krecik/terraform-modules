@@ -8,11 +8,11 @@ module "vpc" {
 
   public_subnets = [
     for az in data.aws_availability_zones.available.names :
-    cidrsubnet(var.cidr_block, 8, index(data.aws_availability_zones.available.names, az) + 129)
+    cidrsubnet(var.cidr_block, 4, index(data.aws_availability_zones.available.names, az) + 129)
   ]
   private_subnets = [
     for az in data.aws_availability_zones.available.names :
-    cidrsubnet(var.cidr_block, 8, index(data.aws_availability_zones.available.names, az) + 1)
+    cidrsubnet(var.cidr_block, 4, index(data.aws_availability_zones.available.names, az) + 1)
   ]
 
   public_subnet_tags = var.eks_cluster_name == "" ? {} : {
