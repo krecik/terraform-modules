@@ -34,7 +34,7 @@ locals {
     ami_id = var.override_ami_id
   } : {}, {
     name                    = "large"
-    override_instance_types = ["t3.large", "t2.large", "t3a.large"]
+    override_instance_types = ["c5.large", "c5a.large"]
     asg_max_size            = var.large_asg_max_size
     asg_min_size            = var.large_asg_min_size
     asg_desired_capacity    = var.large_asg_desired_capacity
