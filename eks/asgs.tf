@@ -16,17 +16,17 @@ locals {
     tags = [
       {
         "key"                 = "k8s.io/cluster-autoscaler/enabled"
-        "propagate_at_launch" = "false"
+        "propagate_at_launch" = "true"
         "value"               = "true"
       },
       {
         "key"                 = "k8s.io/cluster-autoscaler/${var.tenant_name}-${var.cluster_name}"
-        "propagate_at_launch" = "false"
+        "propagate_at_launch" = "true"
         "value"               = "true"
       },
       {
         "key"                 = "k8s.io/cluster-autoscaler/node-template/label/type"
-        "propagate_at_launch" = "false"
+        "propagate_at_launch" = "true"
         "value"               = "medium"
       },
     ]
