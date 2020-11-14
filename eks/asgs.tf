@@ -39,6 +39,7 @@ locals {
     asg_min_size            = var.large_asg_min_size
     asg_desired_capacity    = var.large_asg_desired_capacity
     on_demand_base_capacity = var.large_asg_on_demand_base_capacity
+    cpu_credits             = ""
     bootstrap_extra_args    = var.bootstrap_use_max_pods ? "" : "--use-max-pods false"
     #kubelet_extra_args      = "--node-labels=kubernetes.io/size=large"
 
