@@ -71,6 +71,7 @@ locals {
     asg_desired_capacity    = var.gitlab_ci_runner_medium_asg_desired_capacity
     on_demand_base_capacity = var.gitlab_ci_runner_medium_asg_on_demand_base_capacity
     bootstrap_extra_args    = var.bootstrap_use_max_pods ? "" : "--use-max-pods false"
+    cpu_credits             = ""
     kubelet_extra_args      = "--register-with-taints workload-type=gitlab-ci-runner:NoSchedule --node-labels=workload-type=gitlab-ci-runner"
 
     tags = [
