@@ -4,6 +4,7 @@ locals {
   } : {}, {
     name                    = "medium"
     override_instance_types = ["t3.medium", "t2.medium", "t3a.medium"]
+    cpu_credits             = "unlimited"
     asg_max_size            = var.medium_asg_max_size
     asg_min_size            = var.medium_asg_min_size
     asg_desired_capacity    = var.medium_asg_desired_capacity
@@ -39,7 +40,6 @@ locals {
     asg_min_size            = var.large_asg_min_size
     asg_desired_capacity    = var.large_asg_desired_capacity
     on_demand_base_capacity = var.large_asg_on_demand_base_capacity
-    cpu_credits             = ""
     bootstrap_extra_args    = var.bootstrap_use_max_pods ? "" : "--use-max-pods false"
     #kubelet_extra_args      = "--node-labels=kubernetes.io/size=large"
 

@@ -50,7 +50,7 @@ module "eks" {
     key_name               = var.key_name
     public_ip              = var.worker_public_ip
     root_volume_size       = 50
-    instance_type          = "t2.medium"
+    instance_type          = "c5.large"
     asg_recreate_on_change = true
     additional_userdata    = <<EOF
 #!/bin/bash
