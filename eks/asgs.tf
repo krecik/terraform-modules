@@ -4,7 +4,7 @@ locals {
   } : {}, {
     name                    = "medium"
     instance_type           = "t3.medium"
-    override_instance_types = ["t3.medium", "t2.medium", "t3a.medium"]
+    override_instance_types = ["t3.medium", "t3a.medium"]
     cpu_credits             = "unlimited"
     asg_max_size            = var.medium_asg_max_size
     asg_min_size            = var.medium_asg_min_size
