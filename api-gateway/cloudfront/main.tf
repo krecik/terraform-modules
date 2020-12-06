@@ -1,37 +1,50 @@
-resource "aws_cloudfront_origin_access_identity" "website" {
-  comment = var.domain_name
-}
+variable "domain_name" {}
+variable "api_gateway_invoke_url" {}
+variable "retain_on_delete" { default = false }
+variable "certificate_arn" {}
+variable "min_ttl" { default = 0 }
+variable "default_ttl" { default = 1800 }
+variable "max_ttl" { default = 3600 }
+variable "create_dns_record" { default = true }
+variable "dns_zone_id" { default = "" }
 
-resource "aws_cloudfront_distribution" "website" {
+resource "aws_cloudfront_distribution" "apigw" {
   origin {
-    domain_name = aws_s3_bucket.website.bucket_regional_domain_name
-    origin_id   = "s3"
+    domain_name = regex("http.\\:\\/\\/(?P<domain_name>[^/]+)(?P<path>/.*)", var.api_gateway_invoke_url).domain_name
+    origin_id   = "apigw"
+    origin_path = regex("http.\\:\\/\\/(?P<domain_name>[^/]+)(?P<path>/.*)", var.api_gateway_invoke_url).path
 
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.website.cloudfront_access_identity_path
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "https-only"
+      origin_ssl_protocols = [
+        "TLSv1.2",
+      ]
     }
   }
 
-  aliases = [ for a in [
+  aliases = [
     var.domain_name,
-    var.skip_www ? "" : format("%s%s", "www.", var.domain_name)
-  ]: a if a != "" ]
+  ]
 
-  enabled             = true
-  price_class         = "PriceClass_100"
-  retain_on_delete    = var.retain_on_delete
-  default_root_object = var.index_document
-  is_ipv6_enabled     = "true"
+  enabled          = true
+  price_class      = "PriceClass_100"
+  retain_on_delete = var.retain_on_delete
+  is_ipv6_enabled  = "true"
 
   default_cache_behavior {
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "s3"
+    target_origin_id = "apigw"
     forwarded_values {
-      query_string = false
+      query_string = true
+      headers = [
+        "Authorization",
+      ]
 
       cookies {
-        forward = "none"
+        forward = "all"
       }
     }
     viewer_protocol_policy = "redirect-to-https"
@@ -85,15 +98,11 @@ resource "aws_cloudfront_distribution" "website" {
   custom_error_response {
     error_caching_min_ttl = 0
     error_code            = 403
-    response_code         = var.index_document_on_404 ? 200 : null
-    response_page_path    = var.index_document_on_404 ? "/${var.index_document}" : null
   }
 
   custom_error_response {
     error_caching_min_ttl = 0
     error_code            = 404
-    response_code         = var.index_document_on_404 ? 200 : null
-    response_page_path    = var.index_document_on_404 ? "/${var.index_document}" : null
   }
 
   custom_error_response {
@@ -104,5 +113,19 @@ resource "aws_cloudfront_distribution" "website" {
   custom_error_response {
     error_caching_min_ttl = 0
     error_code            = 414
+  }
+}
+
+resource "aws_route53_record" "apigw" {
+  count = var.create_dns_record ? 1 : 0
+
+  zone_id = var.dns_zone_id
+  name    = var.domain_name
+  type    = "A"
+
+  alias {
+    name                   = aws_cloudfront_distribution.apigw.domain_name
+    zone_id                = aws_cloudfront_distribution.apigw.hosted_zone_id
+    evaluate_target_health = false
   }
 }

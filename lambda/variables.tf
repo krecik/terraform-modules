@@ -38,7 +38,22 @@ variable "environment" {
   }
 }
 
-variable "additional_policy" { default = "" }
+// blank policy to avoid using conditionals
+variable "additional_policy" {
+  default = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "BlankPolicyToHackTerraformIssues",
+      "Effect": "Allow",
+      "Action": "sts:GetCallerIdentity",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
 variable "attach_policies" {
   type    = list
   default = []

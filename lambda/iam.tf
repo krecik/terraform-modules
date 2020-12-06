@@ -1,14 +1,5 @@
-locals {
-  invoke_allow_principals = distinct(concat(
-    var.invoke_allow_principals,
-    compact([
-      var.schedule_expression != "" ? "events.amazonaws.com" : ""
-    ])
-  ))
-}
-
 resource "aws_lambda_permission" "principal" {
-  for_each = toset(local.invoke_allow_principals)
+  for_each = toset(var.invoke_allow_principals)
 
   statement_id  = replace(each.value, "/[\\.:\\/]/", "_")
   action        = "lambda:InvokeFunction"
@@ -17,17 +8,13 @@ resource "aws_lambda_permission" "principal" {
 }
 
 resource "aws_iam_policy" "lambda" {
-  count = var.additional_policy == "" ? 0 : 1
-
   name   = "lambda-${var.name}"
   policy = var.additional_policy
 }
 
 resource "aws_iam_role_policy_attachment" "lambda" {
-  count = var.additional_policy == "" ? 0 : 1
-
   role       = module.lambda_role.name
-  policy_arn = join("", aws_iam_policy.lambda.*.arn)
+  policy_arn = aws_iam_policy.lambda.arn
 }
 
 module "lambda_role" {
